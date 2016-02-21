@@ -2,6 +2,8 @@ package be.jcalculus.core;
 
 import java.util.Random;
 
+import org.omg.Messaging.SyncScopeHelper;
+
 public class CalculusProposal {
 
 	private int a;
@@ -22,8 +24,13 @@ public class CalculusProposal {
 
 	public boolean isResponseCorrect(String responseToTest) {
 		boolean ret = false;
-		int responseToTestInt = Integer.parseInt(responseToTest);
-		if (getResponse() == responseToTestInt) {
+		Integer responseToTestInt = null;
+		try {
+			responseToTestInt = Integer.parseInt(responseToTest);
+		} catch (Exception e) {
+			System.err.println(e.getMessage());
+		}
+		if (responseToTestInt != null && getResponse() == responseToTestInt) {
 			ret = true;
 		}
 		return ret;
