@@ -15,6 +15,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
+import be.jcalculus.core.CalculusProposal;
 import be.jcalculus.pojos.Game;
 import be.jcalculus.pojos.Player;
 
@@ -156,52 +157,27 @@ public class JCalFrame extends JFrame {
 	}
 
 	private void init() {
+
+		Game.getInstance().setParent(this);
+
 		this.btnStart.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
 				System.out.println("START");
-				boolean error = false;
-				do {
-					String name = JOptionPane.showInputDialog("Enter Player 1's name ?");
-					String key = JOptionPane.showInputDialog("Enter Player 1's key ?");
-					try {
-						Player player = new Player(name, key);
-						Game.getInstance().setPlayer1(player);
-					} catch (Exception e) {
-						error = true;
-						JOptionPane.showMessageDialog(getInstance(), e.getMessage(), "ERROR !!!",
-								JOptionPane.ERROR_MESSAGE);
-						System.err.println("Error : " + e.getMessage());
-					}
-				} while (error);
-
-				error = false;
-				do {
-					String name = JOptionPane.showInputDialog("Enter Player 2's name ?");
-					String key = JOptionPane.showInputDialog("Enter Player 2's key ?");
-					try {
-						Player player = new Player(name, key);
-						Game.getInstance().setPlayer2(player);
-					} catch (Exception e) {
-						error = true;
-						JOptionPane.showMessageDialog(getInstance(), e.getMessage(), "ERROR !!!",
-								JOptionPane.ERROR_MESSAGE);
-						System.err.println("Error : " + e.getMessage());
-					}
-				} while (error);
+				Game.getInstance().getPlayers();
 				System.out.println(Game.getInstance());
-				displayPlayer();
+				displayPlayers();
+				CalculusProposal cp=new CalculusProposal();
 			}
 
-			
 		});
 	}
-	
-	private void displayPlayer() {
+
+	public void displayPlayers() {
 		this.lblPlayer1.setText(Game.getInstance().getPlayer1().getName());
 		this.lblPlayer2.setText(Game.getInstance().getPlayer2().getName());
-		this.score1.setText(""+Game.getInstance().getPlayer1().getScore());
-		this.score2.setText(""+Game.getInstance().getPlayer2().getScore());
+		this.score1.setText("" + Game.getInstance().getPlayer1().getScore());
+		this.score2.setText("" + Game.getInstance().getPlayer2().getScore());
 	}
 
 	JCalFrame getInstance() {
