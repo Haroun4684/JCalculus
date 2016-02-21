@@ -9,10 +9,14 @@ public class Game {
 
 	private JCalFrame parent;
 
+	private Player current;
+
 	private Player player1;
 	private Player player2;
 
 	private static Game instance = null;
+
+	private CalculusProposal currentCalcul;
 
 	private Game() {
 	}
@@ -72,16 +76,8 @@ public class Game {
 
 		System.out.println(Game.getInstance());
 		this.parent.displayPlayers();
-		CalculusProposal cp = new CalculusProposal();
-		this.parent.display(cp);
-
-		String response = JOptionPane.showInputDialog("Your response ?");
-		if (cp.isResponseCorrect(response)) {
-			JOptionPane.showConfirmDialog(parent, "Correct :)");
-		} else {
-			JOptionPane.showConfirmDialog(parent, "Bad :(");
-		}
-
+		currentCalcul = new CalculusProposal();
+		this.parent.display(currentCalcul);
 	}
 
 	public void getPlayers() {
@@ -114,6 +110,35 @@ public class Game {
 				System.err.println("Error : " + e.getMessage());
 			}
 		} while (error);
+	}
+
+	public void setPlayer(String key) {
+		if (getPlayer1().getEventKey().equals(key)) {
+			setCurrent(getPlayer1());
+		} else if (getPlayer2().getEventKey().equals(key)) {
+			setCurrent(getPlayer2());
+		}
+
+		String response = JOptionPane.showInputDialog(String.format("Your response %s ?", getCurrent().getName()));
+		if (currentCalcul.isResponseCorrect(response)) {
+			JOptionPane.showConfirmDialog(parent, "Correct :)");
+			getCurrent().setScore(getCurrent().getScore() + 1);
+		} else {
+			JOptionPane.showConfirmDialog(parent, "Bad :(");
+			getCurrent().setScore(getCurrent().getScore() - 1);
+		}
+		parent.displayPlayers();
+		current = null;
+		currentCalcul = new CalculusProposal();
+		parent.display(currentCalcul);
+	}
+
+	public Player getCurrent() {
+		return current;
+	}
+
+	public void setCurrent(Player current) {
+		this.current = current;
 	}
 
 }

@@ -4,20 +4,21 @@ import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.KeyEventDispatcher;
+import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
 import be.jcalculus.core.CalculusProposal;
 import be.jcalculus.pojos.Game;
-import be.jcalculus.pojos.Player;
 
 public class JCalFrame extends JFrame {
 
@@ -70,6 +71,7 @@ public class JCalFrame extends JFrame {
 		contentPane.setLayout(gbl_contentPane);
 
 		calcul = new JTextField();
+		calcul.setEditable(false);
 		GridBagConstraints gbc_calcul = new GridBagConstraints();
 		gbc_calcul.fill = GridBagConstraints.HORIZONTAL;
 		gbc_calcul.gridwidth = 4;
@@ -145,14 +147,32 @@ public class JCalFrame extends JFrame {
 		init();
 	}
 
+	private class MyDispatcher implements KeyEventDispatcher {
+		public boolean dispatchKeyEvent(KeyEvent e) {
+			if (e.getID() == KeyEvent.KEY_PRESSED) {
+				String key = "" + e.getKeyChar();
+				System.out.println("Key pressed : " + key);
+				if (Game.getInstance().getCurrent() == null) {
+					Game.getInstance().setPlayer(key);
+				} else {
+					System.out.println("Already player taken !");
+				}
+			}
+			return false;
+		}
+	}
+
 	private void init() {
 
+		KeyboardFocusManager manager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
+		manager.addKeyEventDispatcher(new MyDispatcher());
+
 		Game.getInstance().setParent(this);
-		
+
 		this.btnStart.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
-//				Game.getInstance().start();
+				// Game.getInstance().start();
 				Game.getInstance().startTest();
 			}
 
@@ -173,4 +193,5 @@ public class JCalFrame extends JFrame {
 	JCalFrame getInstance() {
 		return this;
 	}
+
 }
