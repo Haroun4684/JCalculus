@@ -121,10 +121,10 @@ public class Game {
 
 		String response = JOptionPane.showInputDialog(String.format("Your response %s ?", getCurrent().getName()));
 		if (currentCalcul.isResponseCorrect(response)) {
-			JOptionPane.showConfirmDialog(parent, "Correct :)");
+			JOptionPane.showConfirmDialog(parent, "Nice!");
 			getCurrent().setScore(getCurrent().getScore() + 1);
 		} else {
-			JOptionPane.showConfirmDialog(parent, "Bad :(");
+			JOptionPane.showConfirmDialog(parent, "Maybe the next time :(");
 			getCurrent().setScore(getCurrent().getScore() - 1);
 		}
 		parent.displayPlayers();
