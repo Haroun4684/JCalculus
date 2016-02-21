@@ -28,7 +28,6 @@ public class JCalFrame extends JFrame {
 
 	private JPanel contentPane;
 	private JTextField calcul;
-	private JTextField response;
 	private JTextField score1;
 	private JTextField score2;
 
@@ -79,16 +78,6 @@ public class JCalFrame extends JFrame {
 		gbc_calcul.gridy = 0;
 		contentPane.add(calcul, gbc_calcul);
 		calcul.setColumns(10);
-
-		response = new JTextField();
-		GridBagConstraints gbc_response = new GridBagConstraints();
-		gbc_response.fill = GridBagConstraints.HORIZONTAL;
-		gbc_response.gridwidth = 4;
-		gbc_response.insets = new Insets(0, 0, 5, 0);
-		gbc_response.gridx = 0;
-		gbc_response.gridy = 1;
-		contentPane.add(response, gbc_response);
-		response.setColumns(10);
 
 		JLabel lblJoueurs = new JLabel("Joueurs");
 		GridBagConstraints gbc_lblJoueurs = new GridBagConstraints();
@@ -159,18 +148,19 @@ public class JCalFrame extends JFrame {
 	private void init() {
 
 		Game.getInstance().setParent(this);
-
+		
 		this.btnStart.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				System.out.println("START");
-				Game.getInstance().getPlayers();
-				System.out.println(Game.getInstance());
-				displayPlayers();
-				CalculusProposal cp=new CalculusProposal();
+//				Game.getInstance().start();
+				Game.getInstance().startTest();
 			}
 
 		});
+	}
+
+	public void display(CalculusProposal cp) {
+		this.calcul.setText(cp.getCalcul());
 	}
 
 	public void displayPlayers() {

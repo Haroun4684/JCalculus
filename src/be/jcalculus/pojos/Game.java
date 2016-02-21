@@ -2,6 +2,7 @@ package be.jcalculus.pojos;
 
 import javax.swing.JOptionPane;
 
+import be.jcalculus.core.CalculusProposal;
 import be.jcalculus.gui.JCalFrame;
 
 public class Game {
@@ -52,9 +53,41 @@ public class Game {
 		this.parent = parent;
 	}
 
+	public void start() {
+		System.out.println("START");
+		Game.getInstance().getPlayers();
+		System.out.println(Game.getInstance());
+		this.parent.displayPlayers();
+		CalculusProposal cp = new CalculusProposal();
+		this.parent.display(cp);
+	}
+
+	public void startTest() {
+		System.out.println("START");
+
+		Player player1 = new Player("Haroun", "h");
+		Game.getInstance().setPlayer1(player1);
+		Player player2 = new Player("Raph", "r");
+		Game.getInstance().setPlayer2(player2);
+
+		System.out.println(Game.getInstance());
+		this.parent.displayPlayers();
+		CalculusProposal cp = new CalculusProposal();
+		this.parent.display(cp);
+
+		String response = JOptionPane.showInputDialog("Your response ?");
+		if (cp.isResponseCorrect(response)) {
+			JOptionPane.showConfirmDialog(parent, "Correct :)");
+		} else {
+			JOptionPane.showConfirmDialog(parent, "Bad :(");
+		}
+
+	}
+
 	public void getPlayers() {
 		boolean error = false;
 		do {
+			error = false;
 			String name = JOptionPane.showInputDialog("Enter Player 1's name ?");
 			String key = JOptionPane.showInputDialog("Enter Player 1's key ?");
 			try {
@@ -69,6 +102,7 @@ public class Game {
 
 		error = false;
 		do {
+			error = false;
 			String name = JOptionPane.showInputDialog("Enter Player 2's name ?");
 			String key = JOptionPane.showInputDialog("Enter Player 2's key ?");
 			try {
