@@ -33,6 +33,10 @@ public class JCalFrame extends JFrame {
 
 	private JButton btnStart;
 
+	private JLabel lblPlayer1;
+
+	private JLabel lblPlayer2;
+
 	/**
 	 * Launch the application.
 	 */
@@ -93,7 +97,7 @@ public class JCalFrame extends JFrame {
 		gbc_lblJoueurs.gridy = 2;
 		contentPane.add(lblJoueurs, gbc_lblJoueurs);
 
-		JLabel lblPlayer1 = new JLabel("");
+		lblPlayer1 = new JLabel("");
 		GridBagConstraints gbc_lblPlayer1 = new GridBagConstraints();
 		gbc_lblPlayer1.insets = new Insets(0, 0, 5, 5);
 		gbc_lblPlayer1.gridx = 0;
@@ -101,6 +105,7 @@ public class JCalFrame extends JFrame {
 		contentPane.add(lblPlayer1, gbc_lblPlayer1);
 
 		score1 = new JTextField();
+		score1.setEditable(false);
 		GridBagConstraints gbc_score1 = new GridBagConstraints();
 		gbc_score1.insets = new Insets(0, 0, 5, 5);
 		gbc_score1.fill = GridBagConstraints.HORIZONTAL;
@@ -109,7 +114,7 @@ public class JCalFrame extends JFrame {
 		contentPane.add(score1, gbc_score1);
 		score1.setColumns(10);
 
-		JLabel lblPlayer2 = new JLabel("");
+		lblPlayer2 = new JLabel("");
 		GridBagConstraints gbc_lblPlayer2 = new GridBagConstraints();
 		gbc_lblPlayer2.fill = GridBagConstraints.HORIZONTAL;
 		gbc_lblPlayer2.insets = new Insets(0, 0, 5, 5);
@@ -118,6 +123,7 @@ public class JCalFrame extends JFrame {
 		contentPane.add(lblPlayer2, gbc_lblPlayer2);
 
 		score2 = new JTextField();
+		score2.setEditable(false);
 		GridBagConstraints gbc_score2 = new GridBagConstraints();
 		gbc_score2.insets = new Insets(0, 0, 5, 0);
 		gbc_score2.fill = GridBagConstraints.HORIZONTAL;
@@ -184,8 +190,18 @@ public class JCalFrame extends JFrame {
 					}
 				} while (error);
 				System.out.println(Game.getInstance());
+				displayPlayer();
 			}
+
+			
 		});
+	}
+	
+	private void displayPlayer() {
+		this.lblPlayer1.setText(Game.getInstance().getPlayer1().getName());
+		this.lblPlayer2.setText(Game.getInstance().getPlayer2().getName());
+		this.score1.setText(""+Game.getInstance().getPlayer1().getScore());
+		this.score2.setText(""+Game.getInstance().getPlayer2().getScore());
 	}
 
 	JCalFrame getInstance() {
