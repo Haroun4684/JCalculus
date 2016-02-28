@@ -2,7 +2,6 @@ package be.jcalculus.pojos;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 
 import javax.swing.JOptionPane;
 import javax.swing.Timer;
@@ -84,15 +83,9 @@ public class Game {
 		if ("y".equals(server)) {
 			this.server = new JCServer();
 			this.server.setGame(this);
-			try {
-				this.player1 = new Player("Haroun", "h");
-				this.player2 = new Player("Raph", "r");
-
-				this.server.start();
-			} catch (IOException e1) {
-				// TODO handle exceptino
-				e1.printStackTrace();
-			}
+			this.player1 = new Player("Haroun", "h");
+			this.player2 = new Player("Raph", "r");
+			this.server.start();
 		} else {
 			this.client = new JCClient();
 			this.client.start();

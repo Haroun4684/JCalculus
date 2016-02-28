@@ -77,25 +77,25 @@ public class JCalFrame extends JFrame {
 		gbl_contentPane.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
 		contentPane.setLayout(gbl_contentPane);
 
-				lblWhosTheFaster = new JLabel("WHO'S THE FASTER ?");
-				lblWhosTheFaster.setFont(new Font("Segoe UI Black", Font.BOLD, 15));
-				GridBagConstraints gbc_lblWhosTheFaster = new GridBagConstraints();
-				gbc_lblWhosTheFaster.gridwidth = 3;
-				gbc_lblWhosTheFaster.insets = new Insets(0, 0, 5, 5);
-				gbc_lblWhosTheFaster.gridx = 1;
-				gbc_lblWhosTheFaster.gridy = 0;
-				contentPane.add(lblWhosTheFaster, gbc_lblWhosTheFaster);
+		lblWhosTheFaster = new JLabel("WHO'S THE FASTER ?");
+		lblWhosTheFaster.setFont(new Font("Segoe UI Black", Font.BOLD, 15));
+		GridBagConstraints gbc_lblWhosTheFaster = new GridBagConstraints();
+		gbc_lblWhosTheFaster.gridwidth = 3;
+		gbc_lblWhosTheFaster.insets = new Insets(0, 0, 5, 5);
+		gbc_lblWhosTheFaster.gridx = 1;
+		gbc_lblWhosTheFaster.gridy = 0;
+		contentPane.add(lblWhosTheFaster, gbc_lblWhosTheFaster);
 
-				calcul = new JTextField();
-				calcul.setEditable(false);
-				GridBagConstraints gbc_calcul = new GridBagConstraints();
-				gbc_calcul.fill = GridBagConstraints.HORIZONTAL;
-				gbc_calcul.gridwidth = 4;
-				gbc_calcul.insets = new Insets(0, 0, 5, 0);
-				gbc_calcul.gridx = 0;
-				gbc_calcul.gridy = 1;
-				contentPane.add(calcul, gbc_calcul);
-				calcul.setColumns(10);
+		calcul = new JTextField();
+		calcul.setEditable(false);
+		GridBagConstraints gbc_calcul = new GridBagConstraints();
+		gbc_calcul.fill = GridBagConstraints.HORIZONTAL;
+		gbc_calcul.gridwidth = 4;
+		gbc_calcul.insets = new Insets(0, 0, 5, 0);
+		gbc_calcul.gridx = 0;
+		gbc_calcul.gridy = 1;
+		contentPane.add(calcul, gbc_calcul);
+		calcul.setColumns(10);
 
 		lblScore = new JLabel("Score ");
 		lblScore.setFont(new Font("Berlin Sans FB", Font.PLAIN, 15));
@@ -159,26 +159,26 @@ public class JCalFrame extends JFrame {
 		contentPane.add(score2, gbc_score2);
 		score2.setColumns(10);
 
-								btnStart = new JButton("START");
-								GridBagConstraints gbc_btnStart = new GridBagConstraints();
-								gbc_btnStart.gridwidth = 2;
-								gbc_btnStart.insets = new Insets(0, 0, 0, 5);
-								gbc_btnStart.gridx = 0;
-								gbc_btnStart.gridy = 7;
-								contentPane.add(btnStart, gbc_btnStart);
+		btnStart = new JButton("START");
+		GridBagConstraints gbc_btnStart = new GridBagConstraints();
+		gbc_btnStart.gridwidth = 2;
+		gbc_btnStart.insets = new Insets(0, 0, 0, 5);
+		gbc_btnStart.gridx = 0;
+		gbc_btnStart.gridy = 7;
+		contentPane.add(btnStart, gbc_btnStart);
 
-						JButton btnNext = new JButton("NEXT");
-						GridBagConstraints gbc_btnNext = new GridBagConstraints();
-						gbc_btnNext.insets = new Insets(0, 0, 0, 5);
-						gbc_btnNext.gridx = 2;
-						gbc_btnNext.gridy = 7;
-						contentPane.add(btnNext, gbc_btnNext);
+		JButton btnNext = new JButton("NEXT");
+		GridBagConstraints gbc_btnNext = new GridBagConstraints();
+		gbc_btnNext.insets = new Insets(0, 0, 0, 5);
+		gbc_btnNext.gridx = 2;
+		gbc_btnNext.gridy = 7;
+		contentPane.add(btnNext, gbc_btnNext);
 
-				JButton btnQuit = new JButton("QUIT");
-				GridBagConstraints gbc_btnQuit = new GridBagConstraints();
-				gbc_btnQuit.gridx = 3;
-				gbc_btnQuit.gridy = 7;
-				contentPane.add(btnQuit, gbc_btnQuit);
+		JButton btnQuit = new JButton("QUIT");
+		GridBagConstraints gbc_btnQuit = new GridBagConstraints();
+		gbc_btnQuit.gridx = 3;
+		gbc_btnQuit.gridy = 7;
+		contentPane.add(btnQuit, gbc_btnQuit);
 
 		init();
 	}
@@ -200,9 +200,6 @@ public class JCalFrame extends JFrame {
 
 	private void init() {
 
-		KeyboardFocusManager manager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
-		manager.addKeyEventDispatcher(new MyDispatcher());
-
 		Game.getInstance().setParent(this);
 
 		this.btnStart.addActionListener(new ActionListener() {
@@ -210,6 +207,9 @@ public class JCalFrame extends JFrame {
 			public void actionPerformed(ActionEvent event) {
 				// Game.getInstance().start();
 				Game.getInstance().startTest();
+
+				KeyboardFocusManager manager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
+				manager.addKeyEventDispatcher(new MyDispatcher());
 			}
 
 		});

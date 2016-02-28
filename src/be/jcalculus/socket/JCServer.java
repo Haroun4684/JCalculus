@@ -8,7 +8,7 @@ import java.util.List;
 
 import be.jcalculus.pojos.Game;
 
-public class JCServer {
+public class JCServer extends Thread {
 
 	public static int portClient = 8080;
 
@@ -18,27 +18,23 @@ public class JCServer {
 
 	private Game game;
 
-	public static void main(String[] args) {
-		JCServer server = new JCServer();
+	@Override
+	public void run() {
 		try {
-			server.start();
+			server = new ServerSocket(portClient);
+			// TODO Auto-generated catch block
+			while (true) {
+				System.out.println("- server IP " + JCUtils.getMyip() + " is waiting for new client -");
+				Socket client = server.accept();
+
+				JCServerThread threadClient = new JCServerThread(client, this);
+				clients.add(threadClient);
+				threadClient.start();
+
+				System.out.println("- socket " + client + " accepted -");
+				System.out.println("total of sockets : " + clients.size());
+			}
 		} catch (IOException e) {
-			System.err.println(e.getMessage());
-		}
-	}
-
-	public void start() throws IOException {
-		server = new ServerSocket(portClient);
-		while (true) {
-			System.out.println("- server IP " + JCUtils.getMyip() + " is waiting for new client -");
-			Socket client = server.accept();
-
-			JCServerThread threadClient = new JCServerThread(client, this);
-			clients.add(threadClient);
-			threadClient.start();
-
-			System.out.println("- socket " + client + " accepted -");
-			System.out.println("total of sockets : " + clients.size());
 		}
 	}
 
