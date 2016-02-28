@@ -6,6 +6,8 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
+import be.jcalculus.pojos.Game;
+
 public class JCServer {
 
 	public static int portClient = 8080;
@@ -13,6 +15,8 @@ public class JCServer {
 	private ServerSocket server;
 
 	private List<JCServerThread> clients = new ArrayList<JCServerThread>();
+
+	private Game game;
 
 	public static void main(String[] args) {
 		JCServer server = new JCServer();
@@ -39,7 +43,29 @@ public class JCServer {
 	}
 
 	public String submit(String requestFromClient) {
-		return requestFromClient.toUpperCase();
+		String serverReturned = "";
+		switch (requestFromClient) {
+		case "getplayer1name":
+			serverReturned = this.game.getPlayer1().getName();
+			break;
+		case "getplayer1key":
+			serverReturned = this.game.getPlayer1().getEventKey();
+			break;
+		case "getplayer2name":
+			serverReturned = this.game.getPlayer2().getName();
+			break;
+		case "getplayer2key":
+			serverReturned = this.game.getPlayer2().getEventKey();
+			break;
+
+		default:
+			break;
+		}
+		return serverReturned;
+	}
+
+	public void setGame(Game game) {
+		this.game = game;
 	}
 
 }

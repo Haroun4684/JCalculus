@@ -2,14 +2,20 @@ package be.jcalculus.pojos;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 
 import javax.swing.JOptionPane;
 import javax.swing.Timer;
 
 import be.jcalculus.core.CalculusProposal;
 import be.jcalculus.gui.JCalFrame;
+import be.jcalculus.socket.JCClient;
+import be.jcalculus.socket.JCServer;
 
 public class Game {
+
+	private JCServer server;
+	private JCClient client;
 
 	private JCalFrame parent;
 
@@ -73,10 +79,28 @@ public class Game {
 	public void startTest() {
 		System.out.println("START");
 
-		Player player1 = new Player("Haroun", "h");
-		Game.getInstance().setPlayer1(player1);
-		Player player2 = new Player("Raph", "r");
-		Game.getInstance().setPlayer2(player2);
+		String server = JOptionPane.showInputDialog("Are you the server y-[n]?");
+
+		if ("y".equals(server)) {
+			this.server = new JCServer();
+			this.server.setGame(this);
+			try {
+				this.player1 = new Player("Haroun", "h");
+				this.player2 = new Player("Raph", "r");
+
+				this.server.start();
+			} catch (IOException e1) {
+				// TODO handle exceptino
+				e1.printStackTrace();
+			}
+		} else {
+			this.client = new JCClient();
+			this.client.start();
+			this.player1 = new Player(this.client.askToServer("getplayer1name"),
+					this.client.askToServer("getplayer1key"));
+			this.player2 = new Player(this.client.askToServer("getplayer2name"),
+					this.client.askToServer("getplayer2key"));
+		}
 
 		System.out.println(Game.getInstance());
 		this.parent.displayPlayers();
