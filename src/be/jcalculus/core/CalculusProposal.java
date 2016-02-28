@@ -2,8 +2,6 @@ package be.jcalculus.core;
 
 import java.util.Random;
 
-import org.omg.Messaging.SyncScopeHelper;
-
 public class CalculusProposal {
 
 	private int a;

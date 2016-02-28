@@ -1,6 +1,8 @@
 package be.jcalculus.gui;
 
+import java.awt.Color;
 import java.awt.EventQueue;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -10,19 +12,16 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.Timer;
 import javax.swing.border.EmptyBorder;
 
 import be.jcalculus.core.CalculusProposal;
 import be.jcalculus.pojos.Game;
-import java.awt.Font;
-import java.awt.Color;
-import javax.swing.ImageIcon;
 
 public class JCalFrame extends JFrame {
 
@@ -76,7 +75,7 @@ public class JCalFrame extends JFrame {
 		gbl_contentPane.columnWeights = new double[] { 0.0, 1.0, 1.0, 1.0, Double.MIN_VALUE };
 		gbl_contentPane.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
 		contentPane.setLayout(gbl_contentPane);
-				
+
 				lblWhosTheFaster = new JLabel("WHO'S THE FASTER ?");
 				lblWhosTheFaster.setFont(new Font("Segoe UI Black", Font.BOLD, 15));
 				GridBagConstraints gbc_lblWhosTheFaster = new GridBagConstraints();
@@ -85,7 +84,7 @@ public class JCalFrame extends JFrame {
 				gbc_lblWhosTheFaster.gridx = 1;
 				gbc_lblWhosTheFaster.gridy = 0;
 				contentPane.add(lblWhosTheFaster, gbc_lblWhosTheFaster);
-		
+
 				calcul = new JTextField();
 				calcul.setEditable(false);
 				GridBagConstraints gbc_calcul = new GridBagConstraints();
@@ -96,7 +95,7 @@ public class JCalFrame extends JFrame {
 				gbc_calcul.gridy = 1;
 				contentPane.add(calcul, gbc_calcul);
 				calcul.setColumns(10);
-		
+
 		lblScore = new JLabel("Score ");
 		lblScore.setFont(new Font("Berlin Sans FB", Font.PLAIN, 15));
 		GridBagConstraints gbc_lblScore = new GridBagConstraints();
@@ -115,7 +114,7 @@ public class JCalFrame extends JFrame {
 		gbc_lblJoueurs.gridx = 2;
 		gbc_lblJoueurs.gridy = 2;
 		contentPane.add(lblJoueurs, gbc_lblJoueurs);
-		
+
 		lblScore_1 = new JLabel("Score");
 		lblScore_1.setFont(new Font("Berlin Sans FB", Font.PLAIN, 15));
 		GridBagConstraints gbc_lblScore_1 = new GridBagConstraints();
@@ -158,7 +157,7 @@ public class JCalFrame extends JFrame {
 		gbc_score2.gridy = 3;
 		contentPane.add(score2, gbc_score2);
 		score2.setColumns(10);
-						
+
 								btnStart = new JButton("START");
 								GridBagConstraints gbc_btnStart = new GridBagConstraints();
 								gbc_btnStart.gridwidth = 2;
@@ -166,14 +165,14 @@ public class JCalFrame extends JFrame {
 								gbc_btnStart.gridx = 0;
 								gbc_btnStart.gridy = 7;
 								contentPane.add(btnStart, gbc_btnStart);
-				
+
 						JButton btnNext = new JButton("NEXT");
 						GridBagConstraints gbc_btnNext = new GridBagConstraints();
 						gbc_btnNext.insets = new Insets(0, 0, 0, 5);
 						gbc_btnNext.gridx = 2;
 						gbc_btnNext.gridy = 7;
 						contentPane.add(btnNext, gbc_btnNext);
-		
+
 				JButton btnQuit = new JButton("QUIT");
 				GridBagConstraints gbc_btnQuit = new GridBagConstraints();
 				gbc_btnQuit.gridx = 3;
