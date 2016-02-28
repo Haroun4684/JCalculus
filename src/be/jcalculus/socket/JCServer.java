@@ -39,6 +39,7 @@ public class JCServer extends Thread {
 	}
 
 	public String submit(String requestFromClient) {
+		System.out.println("request : " + requestFromClient);
 		String serverReturned = "";
 		switch (requestFromClient) {
 		case "getplayer1name":
@@ -57,6 +58,7 @@ public class JCServer extends Thread {
 		default:
 			break;
 		}
+		System.out.println("resp : " + serverReturned);
 		return serverReturned;
 	}
 
