@@ -26,7 +26,7 @@ public class JCServer {
 	public void start() throws IOException {
 		server = new ServerSocket(portClient);
 		while (true) {
-			System.out.println("- server is waiting for new client -");
+			System.out.println("- server IP " + JCUtils.getMyip() + " is waiting for new client -");
 			Socket client = server.accept();
 
 			JCServerThread threadClient = new JCServerThread(client, this);

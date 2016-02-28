@@ -3,7 +3,9 @@ package be.jcalculus.socket;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.InetAddress;
 import java.net.Socket;
+import java.net.UnknownHostException;
 
 public class JCUtils {
 
@@ -31,5 +33,14 @@ public class JCUtils {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public static String getMyip() {
+		try {
+			return InetAddress.getLocalHost().getHostAddress();
+		} catch (UnknownHostException e2) {
+			e2.printStackTrace();
+		}
+		return "";
 	}
 }

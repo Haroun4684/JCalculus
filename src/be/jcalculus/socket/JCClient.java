@@ -1,7 +1,6 @@
 package be.jcalculus.socket;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -34,13 +33,8 @@ public class JCClient {
 
 		System.out.println("Server Socket accepted : " + socketServer);
 
-		String ip = "";
-		try {
-			ip = InetAddress.getLocalHost().getHostAddress();
-			System.out.println("My ip is " + ip);
-		} catch (UnknownHostException e2) {
-			e2.printStackTrace();
-		}
+		String ip = JCUtils.getMyip();
+		System.out.println("My ip is " + ip);
 
 		JCUtils.write(socketServer, ip);
 
