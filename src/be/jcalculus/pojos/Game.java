@@ -1,6 +1,11 @@
 package be.jcalculus.pojos;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.JDialog;
 import javax.swing.JOptionPane;
+import javax.swing.Timer;
 
 import be.jcalculus.core.CalculusProposal;
 import be.jcalculus.gui.JCalFrame;
@@ -78,6 +83,18 @@ public class Game {
 		this.parent.displayPlayers();
 		currentCalcul = new CalculusProposal();
 		this.parent.display(currentCalcul);
+
+		Timer timer = new Timer(5000, new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (getCurrent() == null) {
+					currentCalcul = new CalculusProposal();
+					parent.display(currentCalcul);
+				}
+			}
+		});
+
+		timer.start();
 	}
 
 	public void getPlayers() {
@@ -120,6 +137,7 @@ public class Game {
 		}
 
 		String response = JOptionPane.showInputDialog(String.format("Your response %s ?", getCurrent().getName()));
+
 		if (currentCalcul.isResponseCorrect(response)) {
 			JOptionPane.showConfirmDialog(parent, "Nice!");
 			getCurrent().setScore(getCurrent().getScore() + 1);
