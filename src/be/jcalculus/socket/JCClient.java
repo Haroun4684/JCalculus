@@ -3,121 +3,99 @@ package be.jcalculus.socket;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.Scanner;
 
-import javax.swing.JOptionPane;
+public class JCClient extends Thread {
 
-public class JCClient {
+	public int portClient = 8080;
 
-	public static int portClient = 8081;
-
-	private static Socket socketClient;
-	private static Socket socketServer;
+	private Socket clientToServer;
+	private Socket serverToClient;
 
 	public static void main(String[] args) {
+		JCClient client = new JCClient();
+		client.start();
+	}
+
+	@Override
+	public void run() {
 		Scanner scanner = new Scanner(System.in);
-		socketServer = null;
+
 		do {
-			System.out.print("Enter IP of server [localhost] please ? ");
-			String host = scanner.nextLine();
-			if ("".equals(host)) {
-				host = "localhost";
+			System.out.print("Enter IP:port of the server [localhost:8080] please ? ");
+
+			String input = scanner.nextLine();
+			if ("".equals(input)) {
+				input = "localhost:8080";
 			}
-			System.out.println("Server defined at " + host);
+
 			try {
-				socketServer = new Socket(host, JCServer.portClient);
-			} catch (UnknownHostException e) {
-				System.err.println(e.getMessage());
+
+				String[] split = input.split(":");
+				String host = split[0];
+				String port = split[1];
+
+				System.out.println("Try to connect to server " + host + ":" + port);
+				serverToClient = new Socket(host, Integer.parseInt(port));
+				System.out.println("Linked to the Server(" + serverToClient + ") for receiving");
+			} catch (Exception e) {
+				System.err.println("ERROR: " + e.getMessage());
+			}
+		} while (serverToClient == null);
+
+		ServerSocket serverClient = null;
+
+		int countTry = 0;
+		do {
+			try {
+				System.out.println("Expose this client (port " + portClient + ") to the server");
+				serverClient = new ServerSocket(portClient);
+				System.out.println("Sync this client (port " + portClient + ") with the server");
 			} catch (IOException e) {
-				System.err.println(e.getMessage());
+				System.out.println("ERROR: " + e.getMessage());
+				portClient++;
+				System.out.println("trying next port : " + portClient);
+				countTry++;
 			}
-		} while (socketServer == null);
+		} while (serverClient == null && countTry <= 10);
 
-		System.out.println("Server Socket accepted : " + socketServer);
-
-		String ip = JCUtils.getMyip();
-		System.out.println("My ip is " + ip);
-
-		JCUtils.write(socketServer, ip);
-
-		ServerSocket serverSocketClient;
-		try {
-			serverSocketClient = new ServerSocket(portClient);
-			System.out.println("Waiting for socket client com");
-			socketClient = serverSocketClient.accept();
-			System.out.println("Socket client com accepted");
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
-
-		String msg = "";
-		while (socketServer.isConnected()) {
-			System.out.print("Please enter a message for the server > ");
-			msg = scanner.nextLine();
-			if (!"".equals(msg)) {
-				System.out.println("- sending : " + msg + " towards server (" + socketServer + ") -");
-				JCUtils.write(socketServer, msg);
-				String resp = JCUtils.readSocket(socketClient);
-				System.out.println("Server response : " + resp);
+		if (serverClient != null) {
+			String ip = JCUtils.getMyip();
+			System.out.println("\tSend to the server this client infos (" + ip + ":" + portClient + ")");
+			JCUtils.writeTo(serverToClient, ip + ":" + portClient);
+			try {
+				clientToServer = serverClient.accept();
+				System.out.println("Linked to the server(" + clientToServer + ") for sending");
+			} catch (IOException e) {
+				System.out.println("ERROR: " + e.getMessage());
+			} finally {
+				JCUtils.close(serverClient);
 			}
 
+			while (JCUtils.isConnected(clientToServer, serverToClient)) {
+				System.out.print("Please enter a message for the server > ");
+				String msg = scanner.nextLine();
+				if (!"".equals(msg)) {
+					System.out.println(String.format(">>> \"%s\" towards server %s", msg, clientToServer));
+					JCUtils.writeTo(clientToServer, msg);
+
+					String resp = JCUtils.readAndWaitFrom(serverToClient);
+					System.out.println(String.format("<<< \"%s\" from server %s", resp, serverClient));
+				}
+			}
 		}
-		System.out.println("- disconnecting -");
-		try {
-			socketServer.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+
+		System.out.println(">>> this client disconnecting <<<");
+		JCUtils.close(clientToServer, serverToClient);
 		scanner.close();
 	}
 
-	public void start() {
-		Socket socketServer = null;
-		do {
-			String host = JOptionPane.showInputDialog("Enter server host ?");
-			System.out.println("Server defined at " + host);
-			try {
-				socketServer = new Socket(host, JCServer.portClient);
-			} catch (UnknownHostException e) {
-				System.err.println(e.getMessage());
-			} catch (IOException e) {
-				System.err.println(e.getMessage());
-			}
-		} while (socketServer == null);
-
-		System.out.println("Server Socket accepted : " + socketServer);
-
-		String ip = JCUtils.getMyip();
-		System.out.println("My ip is " + ip);
-
-		JCUtils.write(socketServer, ip);
-
-		ServerSocket serverSocketClient;
-		try {
-			serverSocketClient = new ServerSocket(portClient);
-			System.out.println("Waiting for socket client com");
-			socketClient = serverSocketClient.accept();
-			System.out.println("Socket client com accepted");
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
-
-		// System.out.println("- disconnecting -");
-		// try {
-		// socketServer.close();
-		// } catch (IOException e) {
-		// e.printStackTrace();
-		// }
-		// scanner.close();
-	}
-
-	public String askToServer(String msg) {
-		if (socketServer != null && socketServer.isConnected()) {
-			if (!"".equals(msg)) {
-				System.out.println("- sending : " + msg + " towards server (" + socketServer + ") -");
-				JCUtils.write(socketServer, msg);
-				String resp = JCUtils.readSocket(socketClient);
+	public String sendToServer(String request) {
+		if (JCUtils.isConnected(clientToServer, serverToClient)) {
+			if (!"".equals(request)) {
+				System.out.println("- sending : " + request + " towards server (" + serverToClient + ") -");
+				JCUtils.writeTo(serverToClient, request);
+				String resp = JCUtils.readAndWaitFrom(clientToServer);
 				System.out.println("Server response : " + resp);
 				return resp;
 			}

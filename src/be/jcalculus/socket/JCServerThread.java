@@ -4,44 +4,48 @@ import java.net.Socket;
 
 public class JCServerThread extends Thread {
 
-	private Socket socketServer;
 	private JCServer server;
+	private Socket serverToClient;
 
-	public JCServerThread(Socket socket, JCServer server) {
+	public JCServerThread(JCServer server, Socket serverToClient) {
 		super();
-		this.socketServer = socket;
 		this.server = server;
+		this.serverToClient = serverToClient;
 	}
 
 	@Override
 	public void run() {
-		try {
-			String hostClient = JCUtils.readSocket(socketServer);
+		System.out.println("\tSync with client(" + serverToClient + ")");
+		String initFromClient = JCUtils.readAndWaitFrom(serverToClient);
 
-			Socket socketClient = null;
-			do {
-				System.out.println("Client Socket sync :S");
-				try {
-					socketClient = new Socket(hostClient, JCClient.portClient);
-				} catch (Exception e) {
-					System.err.println("Warning : Wait Sync socket client");
-					Thread.sleep(250L);
-				}
-			} while (socketClient == null || !socketClient.isConnected());
+		String[] split = initFromClient.split(":");
+		String hostClient = split[0];
+		String portClient = split[1];
 
-			System.out.println("Client Socket intercepted :)");
+		Socket clientToServer = null;
+		do {
+			try {
+				System.out.println("\tWait for client (" + hostClient + ":" + portClient + ")");
+				clientToServer = new Socket(hostClient, Integer.parseInt(portClient));
+				System.out.println("\tLinked to client(" + clientToServer + ")");
+			} catch (Exception e) {
+				System.out.println("\tERROR: " + e.getMessage());
+				JCUtils.sleep(250L);
+			}
+		} while (!JCUtils.isConnected(clientToServer));
 
-			while (true) {
-				String requestFromClient = JCUtils.readSocket(socketServer);
-				System.out.println("I (the server) just received from client (" + socketServer + ") : \""
-						+ requestFromClient + "\"");
-				String response = server.submit(requestFromClient);
-				System.out.println("I (the server) response to the client : \"" + response + "\"");
-				JCUtils.write(socketClient, response);
+		while (JCUtils.isConnected(clientToServer, serverToClient)) {
+			String requestFromClient = JCUtils.readAndWaitFrom(clientToServer);
+			System.out.println(String.format("<<< <<< \"%s\" from client %s", requestFromClient, clientToServer));
+
+			String response = server.submit(requestFromClient);
+
+			if ("".equals(response)) {
+				response = new String(new byte[] { Character.CONTROL });
 			}
 
-		} catch (Exception e) {
-			e.printStackTrace();
+			System.out.println(String.format(">>> >>> \"%s\" towards client %s", response, serverToClient));
+			JCUtils.writeTo(serverToClient, response);
 		}
 	}
 

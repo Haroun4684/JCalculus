@@ -89,10 +89,10 @@ public class Game {
 		} else {
 			this.client = new JCClient();
 			this.client.start();
-			this.player1 = new Player(this.client.askToServer("getplayer1name"),
-					this.client.askToServer("getplayer1key"));
-			this.player2 = new Player(this.client.askToServer("getplayer2name"),
-					this.client.askToServer("getplayer2key"));
+//			this.player1 = new Player(this.client.askToServer("getplayer1name"),
+//					this.client.askToServer("getplayer1key"));
+//			this.player2 = new Player(this.client.askToServer("getplayer2name"),
+//					this.client.askToServer("getplayer2key"));
 		}
 
 		System.out.println(Game.getInstance());
