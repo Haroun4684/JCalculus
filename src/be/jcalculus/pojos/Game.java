@@ -82,7 +82,6 @@ public class Game {
 
 		if ("y".equals(server)) {
 			this.server = new JCServer();
-			this.server.setGame(this);
 			this.player1 = new Player("Haroun", "h");
 			this.player2 = new Player("Raph", "r");
 			this.server.start();

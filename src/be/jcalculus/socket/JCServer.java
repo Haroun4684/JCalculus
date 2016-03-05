@@ -6,25 +6,25 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
-import be.jcalculus.pojos.Game;
-
-public class JCServer extends Thread {
+public class JCServer extends Thread implements Submittable {
 
 	public int portServer = 8080;
 
 	private List<JCServerThread> clients = new ArrayList<JCServerThread>();
 
-	private Game game;
+	private Submittable submittable;
 
 	public static void main(String[] args) {
 		JCServer server = new JCServer();
+		server.setSubmittable(server);
 		server.start();
 	}
 
 	@Override
 	public void run() {
-		String host = null;
 		ServerSocket server = null;
+		String host = null;
+
 		int countTry = 0;
 		do {
 			try {
@@ -33,7 +33,7 @@ public class JCServer extends Thread {
 				server = new ServerSocket(portServer);
 				System.out.println("Server started on " + host + ":" + portServer);
 			} catch (IOException e) {
-				System.out.println("ERREUR: " + e.getMessage());
+				JCUtils.error(e);
 				portServer++;
 				System.out.println("trying next port : " + portServer);
 				countTry++;
@@ -42,49 +42,39 @@ public class JCServer extends Thread {
 
 		if (server != null) {
 			try {
-				while (true) {
-					System.out.println("- server " + host + ":" + portServer + " is waiting for new client -");
-					Socket serverToClient = server.accept();
-					System.out.println("- client " + serverToClient + " accepted -");
+				while (server.isBound()) {
+					System.out.println(String.format("- server %s:%d is waiting for new client -", host, portServer));
+					Socket socket = server.accept();
+					System.out.println(String.format("- client %s accepted -", socket));
 
-					JCServerThread threadClient = new JCServerThread(this, serverToClient);
+					JCServerThread threadClient = new JCServerThread(this, socket);
 					clients.add(threadClient);
 					threadClient.start();
 
-					System.out.println("- total of clients : " + clients.size() + " -");
+					System.out.println(String.format("- total of clients : %d -", clients.size()));
 				}
 			} catch (Exception e) {
-				System.out.println("ERREUR: " + e.getMessage());
+				JCUtils.error(e);
 			} finally {
+				for (JCServerThread t : clients) {
+					clients.remove(t);
+				}
 				JCUtils.close(server);
 			}
 		}
 	}
 
-	public String submit(String requestFromClient) {
-		String serverReturned = "";
-		switch (requestFromClient) {
-		case "getplayer1name":
-			serverReturned = this.game.getPlayer1().getName();
-			break;
-		case "getplayer1key":
-			serverReturned = this.game.getPlayer1().getEventKey();
-			break;
-		case "getplayer2name":
-			serverReturned = this.game.getPlayer2().getName();
-			break;
-		case "getplayer2key":
-			serverReturned = this.game.getPlayer2().getEventKey();
-			break;
-		default:
-			serverReturned = requestFromClient.toUpperCase();
-			break;
-		}
-		return serverReturned;
+	public void removeThread(JCServerThread t) {
+		this.clients.remove(t);
+		System.out.println("- total of clients : " + clients.size() + " -");
 	}
 
-	public void setGame(Game game) {
-		this.game = game;
+	public Submittable getSubmittable() {
+		return submittable;
+	}
+
+	public void setSubmittable(Submittable submittable) {
+		this.submittable = submittable;
 	}
 
 }

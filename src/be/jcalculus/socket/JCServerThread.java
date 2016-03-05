@@ -1,52 +1,52 @@
 package be.jcalculus.socket;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.net.Socket;
 
 public class JCServerThread extends Thread {
 
 	private JCServer server;
-	private Socket serverToClient;
+	private Socket socket;
 
-	public JCServerThread(JCServer server, Socket serverToClient) {
+	public JCServerThread(JCServer server, Socket socket) {
 		super();
 		this.server = server;
-		this.serverToClient = serverToClient;
+		this.socket = socket;
 	}
 
 	@Override
 	public void run() {
-		System.out.println("\tSync with client(" + serverToClient + ")");
-		String initFromClient = JCUtils.readAndWaitFrom(serverToClient);
+		try {
+			BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+			PrintWriter out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())));
 
-		String[] split = initFromClient.split(":");
-		String hostClient = split[0];
-		String portClient = split[1];
+			while (JCUtils.isConnected(socket)) {
+				String requestFromClient = in.readLine();
 
-		Socket clientToServer = null;
-		do {
-			try {
-				System.out.println("\tWait for client (" + hostClient + ":" + portClient + ")");
-				clientToServer = new Socket(hostClient, Integer.parseInt(portClient));
-				System.out.println("\tLinked to client(" + clientToServer + ")");
-			} catch (Exception e) {
-				System.out.println("\tERROR: " + e.getMessage());
-				JCUtils.sleep(250L);
+				if (requestFromClient == null) {
+					System.out.println(String.format("- the client %s is disconnected -", socket));
+					break;
+				}
+
+				System.out.println(String.format("<<< \"%s\" from client %s ", requestFromClient, socket));
+
+				String response = server.getSubmittable().submit(requestFromClient);
+
+				System.out.println(String.format(">>> \"%s\" towards client %s", response, socket));
+
+				out.println(response);
+				out.flush();
 			}
-		} while (!JCUtils.isConnected(clientToServer));
-
-		while (JCUtils.isConnected(clientToServer, serverToClient)) {
-			String requestFromClient = JCUtils.readAndWaitFrom(clientToServer);
-			System.out.println(String.format("<<< <<< \"%s\" from client %s", requestFromClient, clientToServer));
-
-			String response = server.submit(requestFromClient);
-
-			if ("".equals(response)) {
-				response = new String(new byte[] { Character.CONTROL });
-			}
-
-			System.out.println(String.format(">>> >>> \"%s\" towards client %s", response, serverToClient));
-			JCUtils.writeTo(serverToClient, response);
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
+
+		server.removeThread(this);
 	}
 
 }

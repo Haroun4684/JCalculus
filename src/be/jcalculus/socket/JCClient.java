@@ -1,16 +1,17 @@
 package be.jcalculus.socket;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
-import java.net.ServerSocket;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Scanner;
 
 public class JCClient extends Thread {
 
-	public int portClient = 8080;
-
-	private Socket clientToServer;
-	private Socket serverToClient;
+	private Socket socket;
 
 	public static void main(String[] args) {
 		JCClient client = new JCClient();
@@ -22,84 +23,65 @@ public class JCClient extends Thread {
 		Scanner scanner = new Scanner(System.in);
 
 		do {
-			System.out.print("Enter IP:port of the server [localhost:8080] please ? ");
+			System.out.print("Enter IP:port of the server [[localhost]:8080] please ? ");
 
 			String input = scanner.nextLine();
+
 			if ("".equals(input)) {
 				input = "localhost:8080";
+			} else if (input != null && input.startsWith(":")) {
+				input = "localhost" + input;
+			} else if (input != null && input.matches("\\d+")) {
+				input = "localhost:" + input;
 			}
 
-			try {
+			if (input != null && input.matches("[^:]+:\\d+")) {
+				try {
+					String[] split = input.split(":");
+					String host = split[0];
+					String port = split[1];
 
-				String[] split = input.split(":");
-				String host = split[0];
-				String port = split[1];
-
-				System.out.println("Try to connect to server " + host + ":" + port);
-				serverToClient = new Socket(host, Integer.parseInt(port));
-				System.out.println("Linked to the Server(" + serverToClient + ") for receiving");
-			} catch (Exception e) {
-				System.err.println("ERROR: " + e.getMessage());
+					System.out.println(String.format("Try to connect to server %s:%s", host, port));
+					socket = new Socket(host, Integer.parseInt(port));
+					System.out.println(String.format("Linked to the Server (%s) for receiving", socket));
+				} catch (Exception e) {
+					JCUtils.error(e);
+				}
+			} else {
+				JCUtils.error(new Exception("bad host and port, please enter host:port"));
 			}
-		} while (serverToClient == null);
+		} while (socket == null);
 
-		ServerSocket serverClient = null;
+		try {
+			BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+			PrintWriter out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())));
 
-		int countTry = 0;
-		do {
-			try {
-				System.out.println("Expose this client (port " + portClient + ") to the server");
-				serverClient = new ServerSocket(portClient);
-				System.out.println("Sync this client (port " + portClient + ") with the server");
-			} catch (IOException e) {
-				System.out.println("ERROR: " + e.getMessage());
-				portClient++;
-				System.out.println("trying next port : " + portClient);
-				countTry++;
-			}
-		} while (serverClient == null && countTry <= 10);
-
-		if (serverClient != null) {
-			String ip = JCUtils.getMyip();
-			System.out.println("\tSend to the server this client infos (" + ip + ":" + portClient + ")");
-			JCUtils.writeTo(serverToClient, ip + ":" + portClient);
-			try {
-				clientToServer = serverClient.accept();
-				System.out.println("Linked to the server(" + clientToServer + ") for sending");
-			} catch (IOException e) {
-				System.out.println("ERROR: " + e.getMessage());
-			} finally {
-				JCUtils.close(serverClient);
-			}
-
-			while (JCUtils.isConnected(clientToServer, serverToClient)) {
+			while (JCUtils.isConnected(socket)) {
+				System.out.println("");
 				System.out.print("Please enter a message for the server > ");
 				String msg = scanner.nextLine();
 				if (!"".equals(msg)) {
-					System.out.println(String.format(">>> \"%s\" towards server %s", msg, clientToServer));
-					JCUtils.writeTo(clientToServer, msg);
+					out.println(msg);
+					out.flush();
 
-					String resp = JCUtils.readAndWaitFrom(serverToClient);
-					System.out.println(String.format("<<< \"%s\" from server %s", resp, serverClient));
+					String resp = in.readLine();
+
+					if (resp == null) {
+						System.out.println("- the server is disconnected !!! -");
+						break;
+					} else {
+						System.out.println(String.format("%s", resp));
+					}
+
 				}
 			}
+		} catch (IOException e) {
+			JCUtils.error(e);
 		}
-
-		System.out.println(">>> this client disconnecting <<<");
-		JCUtils.close(clientToServer, serverToClient);
+		System.out.println(">>> disconnecting <<<");
+		JCUtils.close(socket);
 		scanner.close();
+
 	}
 
-	public String sendToServer(String request) {
-		if (JCUtils.isConnected(clientToServer, serverToClient)) {
-			if (!"".equals(request)) {
-				System.out.println("- sending : " + request + " towards server (" + serverToClient + ") -");
-				JCUtils.writeTo(serverToClient, request);
-				String resp = JCUtils.readAndWaitFrom(clientToServer);
-				System.out.println("Server response : " + resp);
-				return resp;
-			}
-		}
-		return "";
-	}
 }
