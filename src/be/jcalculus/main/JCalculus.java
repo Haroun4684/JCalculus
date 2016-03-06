@@ -10,6 +10,7 @@ public class JCalculus {
 		JCalFrame frame = new JCalFrame();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
+		//My COMMMMENT
 	}
 
 }
