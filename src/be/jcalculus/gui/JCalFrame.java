@@ -78,7 +78,7 @@ public class JCalFrame extends JFrame {
 		gbl_contentPane.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
 		contentPane.setLayout(gbl_contentPane);
 
-		lblWhosTheFaster = new JLabel("WHO'S THE FASTER ?");
+		lblWhosTheFaster = new JLabel("WHO'S THE FASTER ??");
 		lblWhosTheFaster.setFont(new Font("Segoe UI Black", Font.BOLD, 15));
 		GridBagConstraints gbc_lblWhosTheFaster = new GridBagConstraints();
 		gbc_lblWhosTheFaster.gridwidth = 3;
