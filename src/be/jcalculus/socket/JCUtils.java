@@ -65,6 +65,6 @@ public class JCUtils {
 	}
 
 	public static void error(Exception e) {
-		System.err.println(String.format("ERROR: %s%n", e.getMessage()));
+		System.err.println(String.format("%nERROR: %s%n", e.getMessage()));
 	}
 }

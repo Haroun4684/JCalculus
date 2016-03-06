@@ -22,7 +22,6 @@ import javax.swing.border.EmptyBorder;
 
 import be.jcalculus.core.CalculusProposal;
 import be.jcalculus.pojos.Game;
-import be.jcalculus.socket.JCServer;
 
 public class JCalFrame extends JFrame {
 

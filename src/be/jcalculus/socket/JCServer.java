@@ -6,6 +6,9 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
+import be.jcalculus.pojos.Game;
+import be.jcalculus.pojos.Player;
+
 public class JCServer extends Thread implements Submittable {
 
 	public int portServer = 8080;
@@ -16,7 +19,9 @@ public class JCServer extends Thread implements Submittable {
 
 	public static void main(String[] args) {
 		JCServer server = new JCServer();
-		server.setSubmittable(server);
+		Game game = Game.getInstance();
+		game.setPlayer1(new Player("coco", "k"));
+		server.setSubmittable(game);
 		server.start();
 	}
 
@@ -73,8 +78,8 @@ public class JCServer extends Thread implements Submittable {
 		return submittable;
 	}
 
-	public void setSubmittable(Submittable submittable) {
-		this.submittable = submittable;
+	public void setSubmittable(Submittable s) {
+		this.submittable = s;
 	}
 
 }

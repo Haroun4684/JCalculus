@@ -10,8 +10,9 @@ import be.jcalculus.core.CalculusProposal;
 import be.jcalculus.gui.JCalFrame;
 import be.jcalculus.socket.JCClient;
 import be.jcalculus.socket.JCServer;
+import be.jcalculus.socket.Submittable;
 
-public class Game {
+public class Game implements Submittable {
 
 	private JCServer server;
 	private JCClient client;
@@ -84,14 +85,18 @@ public class Game {
 			this.server = new JCServer();
 			this.player1 = new Player("Haroun", "h");
 			this.player2 = new Player("Raph", "r");
+			this.server.setSubmittable(this);
 			this.server.start();
 		} else {
+			String host = JOptionPane.showInputDialog("Connect to server host?");
+			String portStr = JOptionPane.showInputDialog("Connect to server port?");
+			int port = Integer.parseInt(portStr);
 			this.client = new JCClient();
+			this.client.setHost(host);
+			this.client.setPort(port);
 			this.client.start();
-//			this.player1 = new Player(this.client.askToServer("getplayer1name"),
-//					this.client.askToServer("getplayer1key"));
-//			this.player2 = new Player(this.client.askToServer("getplayer2name"),
-//					this.client.askToServer("getplayer2key"));
+			this.player1 = new Player(this.client.request("pname1"), this.client.request("pkey1"));
+			this.player2 = new Player(this.client.request("pname2"), this.client.request("pkey2"));
 		}
 
 		System.out.println(Game.getInstance());
@@ -149,21 +154,25 @@ public class Game {
 			setCurrent(getPlayer1());
 		} else if (getPlayer2().getEventKey().equals(key)) {
 			setCurrent(getPlayer2());
-		}
-
-		String response = JOptionPane.showInputDialog(String.format("Your response %s ?", getCurrent().getName()));
-
-		if (currentCalcul.isResponseCorrect(response)) {
-			JOptionPane.showConfirmDialog(parent, "Nice!");
-			getCurrent().setScore(getCurrent().getScore() + 1);
 		} else {
-			JOptionPane.showConfirmDialog(parent, "Maybe the next time :(");
-			getCurrent().setScore(getCurrent().getScore() - 1);
+			setCurrent(null);
 		}
-		parent.displayPlayers();
-		current = null;
-		currentCalcul = new CalculusProposal();
-		parent.display(currentCalcul);
+
+		if (getCurrent() != null) {
+			String response = JOptionPane.showInputDialog(String.format("Your response %s ?", getCurrent().getName()));
+
+			if (currentCalcul.isResponseCorrect(response)) {
+				JOptionPane.showConfirmDialog(parent, "Nice!");
+				getCurrent().setScore(getCurrent().getScore() + 1);
+			} else {
+				JOptionPane.showConfirmDialog(parent, "Maybe the next time :(");
+				getCurrent().setScore(getCurrent().getScore() - 1);
+			}
+			parent.displayPlayers();
+			current = null;
+			currentCalcul = new CalculusProposal();
+			parent.display(currentCalcul);
+		}
 	}
 
 	public Player getCurrent() {
@@ -174,4 +183,24 @@ public class Game {
 		this.current = current;
 	}
 
+	public String submit(String request) {
+		String ret = "I have not understood your request \"" + request + "\" !!!";
+		switch (request) {
+		case "pname1":
+			ret = this.player1.getName();
+			break;
+		case "pname2":
+			ret = this.player2.getName();
+			break;
+		case "pkey1":
+			ret = this.player1.getEventKey();
+			break;
+		case "pkey2":
+			ret = this.player2.getEventKey();
+			break;
+		default:
+			break;
+		}
+		return ret;
+	}
 }
