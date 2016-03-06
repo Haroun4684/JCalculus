@@ -1,11 +1,16 @@
 package be.jcalculus.socket;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Iterator;
 
 public class JCUtils {
@@ -56,6 +61,23 @@ public class JCUtils {
 		}
 	}
 
+	public static Object fromB64String(String strB64) throws Exception {
+		byte[] bytes = Base64.getDecoder().decode(strB64.getBytes());
+		ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(bytes));
+		Object ret = ois.readObject();
+		ois.close();
+		return ret;
+	}
+
+	public static String asB64String(Object obj) throws Exception {
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		ObjectOutputStream oos = new ObjectOutputStream(out);
+		oos.writeObject(obj);
+		byte[] bytes = out.toByteArray();
+		oos.close();
+		return new String(Base64.getEncoder().encode(bytes));
+	}
+
 	public static void sleep(long ms) {
 		try {
 			Thread.sleep(ms);
@@ -65,6 +87,7 @@ public class JCUtils {
 	}
 
 	public static void error(Exception e) {
+		e.printStackTrace();
 		System.err.println(String.format("%nERROR: %s%n", e.getMessage()));
 	}
 }

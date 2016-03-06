@@ -10,6 +10,7 @@ import be.jcalculus.core.CalculusProposal;
 import be.jcalculus.gui.JCalFrame;
 import be.jcalculus.socket.JCClient;
 import be.jcalculus.socket.JCServer;
+import be.jcalculus.socket.JCUtils;
 import be.jcalculus.socket.Submittable;
 
 public class Game implements Submittable {
@@ -85,36 +86,58 @@ public class Game implements Submittable {
 			this.server = new JCServer();
 			this.player1 = new Player("Haroun", "h");
 			this.player2 = new Player("Raph", "r");
+
+			this.currentCalcul = new CalculusProposal();
+
+			Timer timer = new Timer(5000, new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					if (getCurrent() == null) {
+						currentCalcul = new CalculusProposal();
+						parent.display(currentCalcul);
+					}
+				}
+			});
+			timer.start();
+
+			this.parent.displayPlayers();
+			this.parent.display(currentCalcul);
+
 			this.server.setSubmittable(this);
 			this.server.start();
 		} else {
 			String host = JOptionPane.showInputDialog("Connect to server host?");
+			if ("".equals(host)) {
+				host = "localhost";
+			}
 			String portStr = JOptionPane.showInputDialog("Connect to server port?");
+			if ("".equals(portStr)) {
+				portStr = "8080";
+			}
 			int port = Integer.parseInt(portStr);
 			this.client = new JCClient();
 			this.client.setHost(host);
 			this.client.setPort(port);
 			this.client.start();
-			this.player1 = new Player(this.client.request("pname1"), this.client.request("pkey1"));
-			this.player2 = new Player(this.client.request("pname2"), this.client.request("pkey2"));
+			this.player1 = (Player) this.client.request("p1");
+			this.player2 = (Player) this.client.request("p2");
+			Thread tcalculus = new Thread(new Runnable() {
+				@Override
+				public void run() {
+					while (true) {
+						CalculusProposal calcul = (CalculusProposal) getClient().request("calculus");
+						if (getCurrentCalcul() == null || !getCurrentCalcul().equals(calcul)) {
+							setCurrentCalcul(calcul);
+							getParent().display(getCurrentCalcul());
+						}
+						JCUtils.sleep(100L);
+					}
+				}
+			});
+			this.parent.displayPlayers();
+			tcalculus.start();
 		}
 
-		System.out.println(Game.getInstance());
-		this.parent.displayPlayers();
-		currentCalcul = new CalculusProposal();
-		this.parent.display(currentCalcul);
-
-		Timer timer = new Timer(5000, new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if (getCurrent() == null) {
-					currentCalcul = new CalculusProposal();
-					parent.display(currentCalcul);
-				}
-			}
-		});
-
-		timer.start();
 	}
 
 	public void getPlayers() {
@@ -175,6 +198,26 @@ public class Game implements Submittable {
 		}
 	}
 
+	public JCClient getClient() {
+		return client;
+	}
+
+	public void setClient(JCClient client) {
+		this.client = client;
+	}
+
+	public CalculusProposal getCurrentCalcul() {
+		return currentCalcul;
+	}
+
+	public void setCurrentCalcul(CalculusProposal currentCalcul) {
+		this.currentCalcul = currentCalcul;
+	}
+
+	public JCalFrame getParent() {
+		return parent;
+	}
+
 	public Player getCurrent() {
 		return current;
 	}
@@ -184,22 +227,27 @@ public class Game implements Submittable {
 	}
 
 	public String submit(String request) {
-		String ret = "I have not understood your request \"" + request + "\" !!!";
+		String ret = "";
+		Object obj = null;
 		switch (request) {
-		case "pname1":
-			ret = this.player1.getName();
+		case "p1":
+			obj = this.player1;
 			break;
-		case "pname2":
-			ret = this.player2.getName();
+		case "p2":
+			obj = this.player2;
 			break;
-		case "pkey1":
-			ret = this.player1.getEventKey();
-			break;
-		case "pkey2":
-			ret = this.player2.getEventKey();
+		case "calculus":
+			obj = this.currentCalcul;
 			break;
 		default:
 			break;
+		}
+		try {
+			if (obj != null) {
+				ret = JCUtils.asB64String(obj);
+			}
+		} catch (Exception e) {
+			JCUtils.error(e);
 		}
 		return ret;
 	}

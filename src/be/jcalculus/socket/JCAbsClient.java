@@ -8,15 +8,19 @@ public abstract class JCAbsClient extends Thread {
 	private String request;
 	private String response;
 
-	public String request(String request) {
-		String ret = null;
+	public Object request(String request) {
+		Object ret = null;
 		if (request != null || !"".equals(request)) {
 			setResponse("");
 			setRequest(request);
 			while ("".equals(getResponse())) {
 				JCUtils.sleep(100L);
 			}
-			ret = getResponse();
+			try {
+				ret = JCUtils.fromB64String(getResponse());
+			} catch (Exception e) {
+				JCUtils.error(e);
+			}
 		}
 		return ret;
 	}

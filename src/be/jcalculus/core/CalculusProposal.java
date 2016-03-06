@@ -1,8 +1,14 @@
 package be.jcalculus.core;
 
+import java.io.Serializable;
 import java.util.Random;
 
-public class CalculusProposal {
+public class CalculusProposal implements Serializable {
+
+	/**
+	 *
+	 */
+	private static final long serialVersionUID = 1L;
 
 	private int a;
 	private int b;
